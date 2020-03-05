@@ -5,3 +5,9 @@
 ```shell
 $ pip install tfdbonas
 ```
+
+## Requirements
+
+* tnng
+* tfcg
+* stellargraph
