@@ -1,4 +1,4 @@
 tnng
 tfcg
 ##stellargraph
-kgcn
+git+https://github.com/clinfo/kGCN.git
