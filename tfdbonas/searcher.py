@@ -37,15 +37,15 @@ class Searcher:
         return len(self.trial_generator)
 
     @staticmethod
-    def read_config(path: pathlib.Path or str) -> 'Self':
+    def read_config(path: pathlib.Path or str):
         pass
 
     @staticmethod
-    def _read_toml(path: pathlib.Path) -> 'Self':
+    def _read_toml(path: pathlib.Path):
         pass
 
     @staticmethod
-    def _read_yaml(path: pathlib.Path) -> 'Self':
+    def _read_yaml(path: pathlib.Path):
         pass
 
     def dump(self, path: pathlib.Path or str):
