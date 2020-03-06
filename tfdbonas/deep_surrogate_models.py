@@ -36,7 +36,7 @@ def get_stellargraph_gcn_class():
 
 def get_kgcn_gcn_class():
     # for tensorflow 1.x
-    from kgcn import GraphConv, GraphGather
+    from kgcn.layers import GraphConv, GraphGather
 
     class GCNSurrogateModel(tf.keras.models.Model):
         def __init__(self, output_channles: int, hidden_channels: int=64):
@@ -68,7 +68,8 @@ def get_kgcn_gcn_class():
     return GCNSurrogateModel
 
 if __name__ == "__main__":
-    g = GCNSurrogateModel()
+    gcn_class = get_kgcn_gcn_class()
+    g = gcn_class(32)
     features = tf.placeholder(tf.float32, shape=(None, 25, 10))
     adj = tf.placeholder(tf.float32, shape=(1, 25, 25))
     o = g([features, [0,], adj])
