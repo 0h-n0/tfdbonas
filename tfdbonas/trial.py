@@ -7,6 +7,8 @@ class Params(Flag):
 
 
 class Trial:
+    ''' this class is only accessed by TrialGenerator.
+    '''
     def __init__(self):
         self._elements = {}
 
