@@ -1,11 +1,25 @@
+import typing
+
+import numpy as np
 import tensorflow as tf
 import tensorflow.keras.layers as L
+
+from .trial import Trial
+
+class BaseDeepSurrogateModel(tf.keras.models.Model):
+    def __init__(self):
+        super(BaseDeepSurrogateModel, self).__init__()
+
+    def train(self, x, y):
+        pass
+
+
 
 def get_stellargraph_gcn_class():
     # for tensorflow 2.0
     from stellargraph.layer import GraphConvolution
 
-    class GCNSurrogateModel(tf.keras.models.Model):
+    class GCNSurrogateModel(BaseDeepSurrogateModel):
         def __init__(self, output_channles: int, hidden_channels: int=64):
             super(GCNSurrogateModel, self).__init__()
             self.gcn1 = GraphConvolution(16, 'tanh')
@@ -38,7 +52,7 @@ def get_kgcn_gcn_class():
     # for tensorflow 1.x
     from kgcn.layers import GraphConv, GraphGather
 
-    class GCNSurrogateModel(tf.keras.models.Model):
+    class GCNSurrogateModel(BaseDeepSurrogateModel):
         def __init__(self, output_channles: int, hidden_channels: int=64):
             super(GCNSurrogateModel, self).__init__()
             self.gcn1 = GraphConv(16, adj_channel_num=1)
@@ -65,7 +79,49 @@ def get_kgcn_gcn_class():
             x = self.last_layer(inputs, adj)
             x = self.l2(x)
             return x
+
+        def train(self, x, y):
+            pass
+
     return GCNSurrogateModel
+
+
+class SimpleNetwork:
+    def __init__(self, output_dim: int, hidden_dim: int, activation='tanh'):
+        self.first_layer = tf.keras.models.Sequential([
+            L.Dense(32, activation),
+            L.Dense(64, activation),
+            L.Dense(hidden_dim, activation)])
+        self.last_layer = L.Dense(output_dim)
+
+    def __call__(self, x):
+
+        self.bases = self.first_layer(x)
+        return self.last_layer(self.bases)
+
+    def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float]):
+        tf_config = tf.ConfigProto(log_device_placement=False,
+                                   gpu_options=tf.GPUOptions(
+                                       allow_growth=True,
+                                   ))
+        with tf.Graph().as_default():
+            y_plh = tf.placeholder(tf.float32, shape=[None, 1], name='y')
+            x_plh = tf.placeholder(tf.float32, shape=[None, 4], name='x')
+            out = self(x_plh)
+            mse_loss = tf.reduce_mean(tf.square(y_plh - out))
+            train = tf.train.AdamOptimizer(learning_rate=0.001).minimize(mse_loss)
+            num_epoch = 100
+            with tf.Session(config=tf_config) as sess:
+                sess.run(tf.global_variables_initializer())
+                for _ in range(num_epoch):
+                    for x, y in zip(xtrain, ytrain):
+                        x = np.array([x.hidden1,
+                                      x.hidden2,
+                                      x.lr,
+                                      x.batchsize]).reshape(1, 4)
+                        y = np.array(y).reshape(1, 1)
+                        sess.run(train, feed_dict={x_plh: x, y_plh: y})
+
 
 if __name__ == "__main__":
     gcn_class = get_kgcn_gcn_class()

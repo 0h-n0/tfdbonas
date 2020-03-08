@@ -1,4 +1,10 @@
-from tfdbonas.deep_surrogate_models import get_kgcn_gcn_class
+import pytest
+
+import tensorflow as tf
+
+from tfdbonas.deep_surrogate_models import (get_kgcn_gcn_class,
+                                            SimpleNetwork)
+from tfdbonas.trial import Trial
 
 
 def test_get_kgcn_gcn_class():
@@ -11,3 +17,13 @@ def test_get_kgcn_gcn_class():
     print(g.bases.shape)
     assert (1, 32) == o.shape
     assert (1, 64) == g.bases.shape
+
+@pytest.mark.skipif(not tf.test.is_gpu_available(), reason="No GPU")
+def test_simple_network():
+    s = SimpleNetwork(1, 32)
+    t = Trial()
+    setattr(t, 'hidden1', 16)
+    setattr(t, 'hidden2', 32)
+    setattr(t, 'lr', 0.01)
+    setattr(t, 'batchsize', 64)
+    s.train([t,], [0.2,])

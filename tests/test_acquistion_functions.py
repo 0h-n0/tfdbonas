@@ -31,7 +31,6 @@ def test__expected_improvement_invalid_type():
 def test__AcquisitonFunctionType():
     assert AcquisitonFunctionType.EI == 1
 
-
 def test__AcquisitonFunction():
     f = AcquisitonFunction(AcquisitonFunctionType.EI)
     mean = np.arange(0.1, 1, 0.1)
