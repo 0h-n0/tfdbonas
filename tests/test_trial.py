@@ -1,4 +1,3 @@
-import unittest
 from tfdbonas.trial import Trial, TrialGenerator
 
 import pytest
@@ -19,6 +18,7 @@ class Params:
     def __repr__(self):
         return 'Params'
 
+#### Test for Trial ####
 
 @pytest.fixture(
         params=[
@@ -67,7 +67,7 @@ def test_multiple_trial_instantiation(setattr_multiple_registered_samples_for_tr
         assert getattr(t, input[0]) == expected
 
 
-#### TestTrialGenerator ####
+#### Test for TrialGenerator ####
 
 def test_trialgenerator_register():
     t = TrialGenerator()
