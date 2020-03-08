@@ -66,6 +66,49 @@ def test_multiple_trial_instantiation(setattr_multiple_registered_samples_for_tr
         expected = samples[1]
         assert getattr(t, input[0]) == expected
 
-class TestTrialGenerator(unittest.TestCase):
-    def test_trial_instantiation(self):
-        t = TrialGenerator()
+
+#### TestTrialGenerator ####
+
+def test_trialgenerator_register():
+    t = TrialGenerator()
+    assert len(t) == 0
+    params = [
+        ['ints', list(range(10))],
+        ['strs', [f'str{i}' for i in range(10)]],
+        ['floats', [0.1*i for i in range(10)]],
+    ]
+
+    for inputs in params:
+        t.register(inputs[0], inputs[1])
+
+    assert len(t) == 1000
+    assert t[0]._elements == {'ints': 0,
+                              'strs': 'str0',
+                              'floats': 0.0}
+    tt = Trial()
+    tt.ints = 0
+    tt.strs = 'str0'
+    tt.floats = 0.0
+
+    assert t[0] == tt
+
+    assert t[998]._elements == {'ints': 8,
+                                'strs': 'str9',
+                                'floats': 0.9}
+    assert t[999]._elements == {'ints': 9,
+                                'strs': 'str9',
+                                'floats': 0.9}
+
+@pytest.mark.xfail
+def test_trialgenerator_register_IndexError():
+    t = TrialGenerator()
+    assert len(t) == 0
+    params = [
+        ['ints', list(range(10))],
+        ['strs', [f'str{i}' for i in range(10)]],
+        ['floats', [0.1*i for i in range(10)]],
+    ]
+
+    for inputs in params:
+        t.register(inputs[0], inputs[1])
+    print(t[1000])

@@ -11,10 +11,19 @@ class Trial:
     '''
     def __init__(self):
         self._elements = {}
+        del self._elements['_elements'] # remove self setattr
 
     def __setattr__(self, name: str, value):
         super.__setattr__(self, name, value)
         self._elements[name] = value
+
+    def __eq__(self, other: dict or 'Trial'):
+        if isinstance(other, Trial):
+            return self._elements == other._elements
+        elif isinstance(other, dict):
+            return self._elements == other
+        else:
+            return NotImplemented
 
     def __str__(self):
         o = "{"
@@ -47,6 +56,8 @@ class TrialGenerator:
         self._len *= len(trials)
 
     def __getitem__(self, index: int) -> Trial:
+        if index >= self._len:
+            raise IndexError(f"len(self) => {self._len}, your index is invalid[{index}].")
         indices: typing.Dict[str, int] = {}
         for idx, (k, n) in enumerate(self._registered_length.items()):
             if (idx + 1) == len(self._registered):
@@ -67,6 +78,6 @@ class TrialGenerator:
 
     def __str__(self):
         o = ""
-        for k, i in self._registered.values():
+        for k, i in self._registered.items():
             o += f"{k} : {i}\n"
         return o
