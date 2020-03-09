@@ -18,6 +18,7 @@ def test_get_kgcn_gcn_class():
     assert (1, 32) == o.shape
     assert (1, 64) == g.bases.shape
 
+
 @pytest.mark.skipif(not tf.test.is_gpu_available(), reason="No GPU")
 def test_simple_network():
     s = SimpleNetwork(1, 32)

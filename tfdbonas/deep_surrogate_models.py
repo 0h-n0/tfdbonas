@@ -87,31 +87,38 @@ def get_kgcn_gcn_class():
 
 
 class SimpleNetwork:
-    def __init__(self, output_dim: int, hidden_dim: int, activation='tanh'):
+    def __init__(self, output_dim: int = 1, hidden_dim: int = 32, activation='tanh'):
         self.first_layer = tf.keras.models.Sequential([
             L.Dense(32, activation),
             L.Dense(64, activation),
             L.Dense(hidden_dim, activation)])
         self.last_layer = L.Dense(output_dim)
+        self.tf_config = tf.ConfigProto(log_device_placement=False,
+                                        gpu_options=tf.GPUOptions(
+                                            allow_growth=True,
+                                        ))
+        self.graph_train = tf.Graph()
+        self.sess = tf.Session(config=self.tf_config, graph=self.graph_train)
+        self._build_graph()
 
     def __call__(self, x):
-
         self.bases = self.first_layer(x)
         return self.last_layer(self.bases)
 
+    def _build_graph(self):
+        with self.graph_train.as_default():
+            self.y_plh_train = tf.placeholder(tf.float32, shape=[None, 1], name='ytrain')
+            self.x_plh_train = tf.placeholder(tf.float32, shape=[None, 4], name='xtrain')
+            out = self(self.x_plh_train)
+            mse_loss = tf.reduce_mean(tf.square(self.y_plh_train - out))
+            self.train_loss = tf.train.AdamOptimizer(learning_rate=0.001).minimize(mse_loss)
+
     def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float]):
-        tf_config = tf.ConfigProto(log_device_placement=False,
-                                   gpu_options=tf.GPUOptions(
-                                       allow_growth=True,
-                                   ))
-        with tf.Graph().as_default():
-            y_plh = tf.placeholder(tf.float32, shape=[None, 1], name='y')
-            x_plh = tf.placeholder(tf.float32, shape=[None, 4], name='x')
-            out = self(x_plh)
-            mse_loss = tf.reduce_mean(tf.square(y_plh - out))
-            train = tf.train.AdamOptimizer(learning_rate=0.001).minimize(mse_loss)
-            num_epoch = 100
-            with tf.Session(config=tf_config) as sess:
+        #with tf.Graph().as_default():
+        if True:
+            num_epoch = 1
+            bases = []
+            with self.sess as sess:
                 sess.run(tf.global_variables_initializer())
                 for _ in range(num_epoch):
                     for x, y in zip(xtrain, ytrain):
@@ -119,8 +126,30 @@ class SimpleNetwork:
                                       x.hidden2,
                                       x.lr,
                                       x.batchsize]).reshape(1, 4)
-                        y = np.array(y).reshape(1, 1)
-                        sess.run(train, feed_dict={x_plh: x, y_plh: y})
+                        y = np.array(y, dtype=np.float32).reshape(1, 1)
+                        sess.run(self.train_loss, feed_dict={self.x_plh_train: x, self.y_plh_train: y})
+                for x, y in zip(xtrain, ytrain):
+                    x = np.array([x.hidden1,
+                                  x.hidden2,
+                                  x.lr,
+                                  x.batchsize]).reshape(1, 4)
+                    y = np.array(y, dtype=np.float32).reshape(1, 1)
+                    bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
+                bases = np.concatenate(bases)
+        return bases
+
+    def eval(self, xeval=typing.List[Trial], yeval=typing.List[float]):
+        bases = []
+        with self.sess as sess:
+            for x, y in zip(xeval, yeval):
+                x = np.array([x.hidden1,
+                              x.hidden2,
+                              x.lr,
+                              x.batchsize]).reshape(1, 4)
+                y = np.array(y, dtype=np.float32).reshape(1, 1)
+                bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
+            bases = np.concatenate(bases)
+        return bases
 
 
 if __name__ == "__main__":

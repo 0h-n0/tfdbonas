@@ -42,6 +42,7 @@ class TrialGenerator:
         self._registered_length: typing.Dict[str, int] = {}
         self.trial = Trial()
         self._len = 1
+        self._n_features = 0
 
     def register(self, name: str, trials: typing.List) -> None:
         assert len(trials) != 0, "can't accept empty trials."
@@ -54,6 +55,19 @@ class TrialGenerator:
         self._registered_length[name] = len(trials)
         setattr(self.trial, name, None)
         self._len *= len(trials)
+        self._n_features += 1
+
+    @property
+    def n_features(self):
+        return self._n_features
+
+    @n_features.getter
+    def n_features(self):
+        return self._n_features
+
+    @n_features.setter
+    def n_features(self, value):
+        raise NotImplementedError
 
     def __getitem__(self, index: int) -> Trial:
         if index >= self._len:

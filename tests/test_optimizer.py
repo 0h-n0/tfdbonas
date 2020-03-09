@@ -1,4 +1,7 @@
+import unittest
+
 import pytest
+import numpy as np
 
 from tfdbonas.optimizer import DNGO
 from tfdbonas.trial import TrialGenerator
@@ -34,20 +37,40 @@ def test_dngo_random_search(correct_tirals_test_case):
     assert data['n_trials'] == len(algo._searched_trial_indices)
     assert data['n_trials'] == len(algo.results)
 
-def test_dngo_bayes_search():
-    def objective(trial):
-        return trial.lr * trial.bs * trial.network
-    params = [
-        ['lr', [0.1 * i for i in range(10)]],
-        ['bs', [64 * i for i in range(10)]],
-        ['network', [64 * i for i in range(10)]],
-    ]
-    t = TrialGenerator()
-    for inputs in params:
-        t.register(inputs[0], inputs[1])
-    algo = DNGO(t)
-    n_random = 10
-    n_bayes = 10
-    algo._random_search(objective, n_random)
-    algo._bayes_search(objective, n_bayes)
-    pass
+
+class TestDNGO(unittest.TestCase):
+    @staticmethod
+    def objective(trial) -> float:
+        return trial.hidden1 * trial.hidden2 * trial.lr * trial.batchsize
+
+    def setUp(self):
+        params = [
+            ['hidden1', [16, 32, 64, 128]],
+            ['hidden2', [16, 32, 64, 128]],
+            ['lr', [0.1 * i for i in range(10)]],
+            ['batchsize', [64 * i for i in range(10)]],
+        ]
+        self.trial_generator = TrialGenerator()
+        for inputs in params:
+            self.trial_generator.register(inputs[0], inputs[1])
+
+    def test_dngo_bayes_search(self):
+        algo = DNGO(self.trial_generator)
+        n_random = 10
+        n_bayes = 10
+        path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        algo._random_search(TestDNGO.objective, n_random)
+        #algo._bayes_search(TestDNGO.objective, n_bayes, path)
+
+    def test__calc_marginal_log_likelihood(self):
+        optimizer = DNGO(self.trial_generator)
+        n_random = 10
+        n_bayes = 10
+        path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        theta = np.random.rand(2)
+        phi = np.random.rand(10, 10)
+        y_values = np.random.rand(10)
+        optimizer._calc_marginal_log_likelihood(theta, phi, y_values, 10, 10)
+
+        #algo._random_search(TestDNGO.objective, n_random)
+        #algo._bayes_search(TestDNGO.objective, n_bayes, path)
