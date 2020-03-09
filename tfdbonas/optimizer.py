@@ -88,7 +88,7 @@ class DNGO:
 
     def _calc_acq_value(self, mean, var):
         min_val = np.min(mean)
-        return min_val self.acq_func(mean, var, min_val)
+        return min_val# self.acq_func(mean, var, min_val)
 
     # def predict(self, x):
     #     _x = copy.deepcopy(x)
