@@ -24,6 +24,10 @@ class Searcher:
 
         if OptimizerType.DNGO == self.search_algorithm:
             Optimizer = DNGO
+            if 'deep_surrogate_model' in kwargs.keys():
+                raise ValueError("set 'deep_surrogate_model' in input kwargs'")
+            if 'n_random_trials' in kwargs.keys():
+                raise ValueError("set 'n_random_trials' in input kwargs'")
         else:
             raise NotImplementedError("supported optimizer: DNGO")
         optimizer = Optimizer(self.trial_generator)
