@@ -59,6 +59,7 @@ class TrialGenerator:
         if index >= self._len:
             raise IndexError(f"len(self) => {self._len}, your index is invalid[{index}].")
         indices: typing.Dict[str, int] = {}
+        trial = Trial()
         for idx, (k, n) in enumerate(self._registered_length.items()):
             if (idx + 1) == len(self._registered):
                 # final key
@@ -68,8 +69,8 @@ class TrialGenerator:
                 indices[k] = remain
                 index //= n
         for k, n in indices.items():
-            setattr(self.trial, k, self._registered[k][n])
-        return self.trial
+            setattr(trial, k, self._registered[k][n])
+        return trial
 
     def __len__(self):
         if len(self._registered) == 0:
