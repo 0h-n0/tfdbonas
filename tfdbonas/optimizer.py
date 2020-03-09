@@ -87,20 +87,20 @@ class DNGO:
         return mean, var
 
     def _calc_acq_value(self, mean, var):
-        min_val = torch.min(self.norm_y)
-        return self.acq_func(mean, var, min_val)
+        min_val = np.min(mean)
+        return min_val self.acq_func(mean, var, min_val)
 
-    def predict(self, x):
-        _x = copy.deepcopy(x)
-        _, beta = torch.exp(self.params).float()
-        _x = (_x - self.mean_x) / self.std_x
-        phi = self.nn.partial_forward(_x)
-        mean = torch.matmul(phi, self.m)
-        var = torch.diag(torch.matmul(torch.matmul(phi, self.K_inv), phi.t()) + 1 / beta)
-        mean = mean * self.std_y + self.mean_y
-        var = var * self.std_y ** 2
-        #var = var.reshape(mean.shape[0], mean.shape[1])
-        return mean.detach(), var.detach()
+    # def predict(self, x):
+    #     _x = copy.deepcopy(x)
+    #     _, beta = torch.exp(self.params).float()
+    #     _x = (_x - self.mean_x) / self.std_x
+    #     phi = self.nn.partial_forward(_x)
+    #     mean = torch.matmul(phi, self.m)
+    #     var = torch.diag(torch.matmul(torch.matmul(phi, self.K_inv), phi.t()) + 1 / beta)
+    #     mean = mean * self.std_y + self.mean_y
+    #     var = var * self.std_y ** 2
+    #     #var = var.reshape(mean.shape[0], mean.shape[1])
+    #     return mean.detach(), var.detach()
 
     def _update_mll_params(self, bases, searched_trial_indices,
                            results, n_samples, n_features):
