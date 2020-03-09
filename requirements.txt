@@ -4,4 +4,4 @@ tfcg
 git+https://github.com/clinfo/kGCN.git
 scipy
 numpy
-tensorflow==1.15.0
+tensorflow==1.15
