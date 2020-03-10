@@ -9,6 +9,7 @@ import scipy.stats
 
 from .trial import Trial, TrialGenerator
 from .utils import State, load_class
+from .acquistion_functions import AcquisitonFunction, AcquisitonFunctionType
 
 
 class OptimizerType(Flag):
@@ -16,13 +17,14 @@ class OptimizerType(Flag):
 
 
 class DNGO:
-    def __init__(self, trial_generator):
+    def __init__(self, trial_generator, acq_func_type=AcquisitonFunctionType.EI):
         self._trials_indices = list(range(len(trial_generator)))
         self.trial_generator = trial_generator
         self._state = State.NotInitialized
         self._searched_trial_indices: typing.List[int] = []
         self.results: typing.Dict[int, float] = {}
         self._deep_surrogate_model_restore_path = '/tmp/model.ckpt'
+        self.acq_func = AcquisitonFunction(acq_func_type)
 
     def run(self, objective: typing.Callable[[Trial], float],
             n_trials: int, **kwargs):
@@ -66,7 +68,7 @@ class DNGO:
                                              n_samples,
                                              n_features)
             mean, var = self._predict(params, self._trials_indices, deep_surrogate_model)
-            acq_values = self._calc_acq_value(mean, var)
+            acq_values = self._calc_acq_value(mean, var, self.results)
             next_sample_index = np.argmax(acq_values)
             self._searched_trial_indices.append(next_sample_index)
             self._trials_indices.remove(next_sample_index)
@@ -100,26 +102,15 @@ class DNGO:
         var = np.diag(np.matmul(np.matmul(predicted_bases, self.k_inv), predicted_bases.t()) + 1 / beta)
         return mean, var
 
-    def _calc_acq_value(self, mean, var):
-        min_val = np.min(mean)
-        return min_val# self.acq_func(mean, var, min_val)
-
-    # def predict(self, x):
-    #     _x = copy.deepcopy(x)
-    #     _, beta = torch.exp(self.params).float()
-    #     _x = (_x - self.mean_x) / self.std_x
-    #     phi = self.nn.partial_forward(_x)
-    #     mean = torch.matmul(phi, self.m)
-    #     var = torch.diag(torch.matmul(torch.matmul(phi, self.K_inv), phi.t()) + 1 / beta)
-    #     mean = mean * self.std_y + self.mean_y
-    #     var = var * self.std_y ** 2
-    #     #var = var.reshape(mean.shape[0], mean.shape[1])
-    #     return mean.detach(), var.detach()
+    def _calc_acq_value(self, mean, var, results):
+        # TODO: current version is just for EI.
+        min_val = np.float64(np.min(list(results.values())))
+        return self.acq_func(mean, var, min_val)
 
     def _update_mll_params(self, bases, searched_trial_indices,
                            results, n_samples, n_features):
 
-        y_values = [results[i] for i in searched_trial_indices]
+        y_values = np.array([results[i] for i in searched_trial_indices])
         params = scipy.optimize.fmin(self._calc_marginal_log_likelihood,
                                      np.random.rand(2),
                                      args=(bases, y_values, n_samples, n_features))
@@ -149,7 +140,6 @@ class DNGO:
 
         self.mat = mat
         self.k_inv = k_inv
-        print(mat.shape)
         mll = n_features / 2. * np.log(alpha)
         mll += n_samples / 2. * np.log(beta)
         mll -= n_samples / 2. * np.log(2 * math.pi)
