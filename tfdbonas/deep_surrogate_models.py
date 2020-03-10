@@ -87,7 +87,8 @@ def get_kgcn_gcn_class():
 
 
 class SimpleNetwork:
-    def __init__(self, output_dim: int = 1, hidden_dim: int = 32, activation='tanh'):
+    def __init__(self, output_dim: int = 1, hidden_dim: int = 32, activation='tanh',
+                 model_path='/tmp/simplenetwork.ckpt'):
         self.first_layer = tf.keras.models.Sequential([
             L.Dense(32, activation),
             L.Dense(64, activation),
@@ -97,10 +98,9 @@ class SimpleNetwork:
                                         gpu_options=tf.GPUOptions(
                                             allow_growth=True,
                                         ))
-        # self.graph_train = tf.Graph()
         self._build_graph()
         self.saver = tf.train.Saver()
-        self.model_path = '/tmp/simplenetwork.ckpt'
+        self.model_path = model_path
         self._build_graph()
 
     def __call__(self, x):
@@ -108,7 +108,6 @@ class SimpleNetwork:
         return self.last_layer(self.bases)
 
     def _build_graph(self):
-        #with self.graph_train.as_default():
         if True:
             self.y_plh_train = tf.placeholder(tf.float32, shape=[None, 1], name='ytrain')
             self.x_plh_train = tf.placeholder(tf.float32, shape=[None, 4], name='xtrain')

@@ -22,6 +22,7 @@ class DNGO:
         self._state = State.NotInitialized
         self._searched_trial_indices: typing.List[int] = []
         self.results: typing.Dict[int, float] = {}
+        self._deep_surrogate_model_restore_path = '/tmp/model.ckpt'
 
     def run(self, objective: typing.Callable[[Trial], float],
             n_trials: int, **kwargs):
@@ -48,7 +49,7 @@ class DNGO:
                       objective: typing.Callable[[Trial], float],
                       n_trials: int,
                       deep_surrogate_model_path: str) -> typing.List[int]:
-        deep_surrogate_model = load_class(deep_surrogate_model_path)()
+        deep_surrogate_model = load_class(deep_surrogate_model_path)(model_path=self._deep_surrogate_model_restore_path)
         assert self._state == State.Initialized, ('not initialied: please call '
                                                   'self.random_search() before calling bayes_search.')
         assert len(self._searched_trial_indices) != 0, 'Before searching, you have to run random search.'
