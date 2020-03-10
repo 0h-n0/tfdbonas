@@ -97,8 +97,10 @@ class SimpleNetwork:
                                         gpu_options=tf.GPUOptions(
                                             allow_growth=True,
                                         ))
-        self.graph_train = tf.Graph()
-        self.sess = tf.Session(config=self.tf_config, graph=self.graph_train)
+        # self.graph_train = tf.Graph()
+        self._build_graph()
+        self.saver = tf.train.Saver()
+        self.model_path = '/tmp/simplenetwork.ckpt'
         self._build_graph()
 
     def __call__(self, x):
@@ -106,18 +108,20 @@ class SimpleNetwork:
         return self.last_layer(self.bases)
 
     def _build_graph(self):
-        with self.graph_train.as_default():
+        #with self.graph_train.as_default():
+        if True:
             self.y_plh_train = tf.placeholder(tf.float32, shape=[None, 1], name='ytrain')
             self.x_plh_train = tf.placeholder(tf.float32, shape=[None, 4], name='xtrain')
             out = self(self.x_plh_train)
             mse_loss = tf.reduce_mean(tf.square(self.y_plh_train - out))
             self.train_loss = tf.train.AdamOptimizer(learning_rate=0.001).minimize(mse_loss)
+    def _build_predict(self):
+        pass
 
     def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float], n_trainin_epochs: int = 100):
-        #with tf.Graph().as_default():
         if True:
             bases = []
-            with self.sess as sess:
+            with tf.Session(config=self.tf_config) as sess:
                 sess.run(tf.global_variables_initializer())
                 for _ in range(n_trainin_epochs):
                     for x, y in zip(xtrain, ytrain):
@@ -135,17 +139,21 @@ class SimpleNetwork:
                     y = np.array(y, dtype=np.float32).reshape(1, 1)
                     bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
                 bases = np.concatenate(bases)
+                self.saver.save(sess, self.model_path)
         return bases
 
     def predict(self, xeval=typing.List[Trial]):
         bases = []
-        with self.sess as sess:
-            for x in zip(xeval):
+        with tf.Session(config=self.tf_config) as sess:
+            self.saver.restore(sess, self.model_path)
+            for x in xeval:
+                print(x)
                 x = np.array([x.hidden1,
                               x.hidden2,
                               x.lr,
                               x.batchsize]).reshape(1, 4)
-                y = np.array(y, dtype=np.float32).reshape(1, 1)
+                y = np.ones((1, 1), dtype=np.float32) # dummy input
+                print(y)
                 bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
             bases = np.concatenate(bases)
         return bases

@@ -98,3 +98,9 @@ class TestDNGO(unittest.TestCase):
         n_random = 10
         n_bayes = 10
         path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        theta = np.random.rand(2)
+        searched_trial_indices = [1, 2, 3]
+        deep_surrogate_model = self.load_class(path)()
+        n_epochs = 1
+        trained_bases = optimizer._predict_deep_surrogate_model(searched_trial_indices, deep_surrogate_model)
