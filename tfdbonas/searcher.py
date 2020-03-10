@@ -10,9 +10,9 @@ from .utils import State
 
 
 class Searcher:
-    def __init__(self):
+    def __init__(self, search_algorithm=OptimizerType.DNGO):
         self.trial_generator = TrialGenerator()
-        self.search_algorithm = OptimizerType.DNGO
+        self.search_algorithm = search_algorithm
         self._state = State.NotInitialized
 
     def register_trial(self, name: str, trial: list):
@@ -24,9 +24,9 @@ class Searcher:
 
         if OptimizerType.DNGO == self.search_algorithm:
             Optimizer = DNGO
-            if 'deep_surrogate_model' in kwargs.keys():
+            if not 'deep_surrogate_model' in kwargs.keys():
                 raise ValueError("set 'deep_surrogate_model' in input kwargs'")
-            if 'n_random_trials' in kwargs.keys():
+            if not 'n_random_trials' in kwargs.keys():
                 raise ValueError("set 'n_random_trials' in input kwargs'")
         else:
             raise NotImplementedError("supported optimizer: DNGO")
