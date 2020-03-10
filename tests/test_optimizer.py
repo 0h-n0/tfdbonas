@@ -78,13 +78,20 @@ class TestDNGO(unittest.TestCase):
         optimizer = DNGO(self.trial_generator)
         n_random = 10
         n_bayes = 10
-        optimizer._deep_surrogate_model_restore_path = f'/tmp/test_model_{os.getpid()}.ckpt'
+        optimizer._deep_surrogate_model_restore_path = f'/tmp/test_model_predict{os.getpid()}.ckpt'
         path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
         theta = np.random.rand(2)
-        remained_trial_indices = [1, 2, 3]
+        searched_trial_indices = [1, 2, 3]
         deep_surrogate_model = self.load_class(path)()
+        results = {str(i): i for i in range(3)}
+        remained_trial_indices = [4, 5, 6]
         optimizer.k_inv = np.random.rand(32, 32)
         optimizer.mat = np.random.rand(32, 32)
+        n_epochs = 1
+        trained_bases = optimizer._train_deep_surrogate_model(searched_trial_indices,
+                                                              results,
+                                                              deep_surrogate_model,
+                                                              n_epochs)
         mean, var = optimizer._predict(theta,
                                        remained_trial_indices,
                                        deep_surrogate_model)
