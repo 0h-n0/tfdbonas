@@ -62,7 +62,7 @@ class TestDNGO(unittest.TestCase):
         n_bayes = 10
         path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
         algo._random_search(TestDNGO.objective, n_random)
-        #algo._bayes_search(TestDNGO.objective, n_bayes, path)
+        algo._bayes_search(TestDNGO.objective, n_bayes, path)
 
     def test__calc_marginal_log_likelihood(self):
         optimizer = DNGO(self.trial_generator)
@@ -73,6 +73,22 @@ class TestDNGO(unittest.TestCase):
         phi = np.random.rand(10, 10)
         y_values = np.random.rand(10)
         optimizer._calc_marginal_log_likelihood(theta, phi, y_values, 10, 10)
+
+    def test__predict(self):
+        optimizer = DNGO(self.trial_generator)
+        n_random = 10
+        n_bayes = 10
+        optimizer._deep_surrogate_model_restore_path = f'/tmp/test_model_{os.getpid()}.ckpt'
+        path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        theta = np.random.rand(2)
+        remained_trial_indices = [1, 2, 3]
+        deep_surrogate_model = self.load_class(path)()
+        optimizer.k_inv = np.random.rand(32, 32)
+        optimizer.mat = np.random.rand(32, 32)
+        mean, var = optimizer._predict(theta,
+                                       remained_trial_indices,
+                                       deep_surrogate_model)
+
 
     def test__train_deep_surrogate_model(self):
         optimizer = DNGO(self.trial_generator)
@@ -110,3 +126,10 @@ class TestDNGO(unittest.TestCase):
                                                               deep_surrogate_model,
                                                               n_epochs)
         trained_bases = optimizer._predict_deep_surrogate_model(searched_trial_indices, deep_surrogate_model)
+
+    def test__calc_acq_values_ai(self):
+        optimizer = DNGO(self.trial_generator)
+        mean = np.random.rand(10)
+        var = np.random.rand(10)
+        results = {1: 1*i for i in range(1)}
+        optimizer._calc_acq_value(mean, var, results)

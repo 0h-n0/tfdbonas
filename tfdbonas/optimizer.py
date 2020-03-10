@@ -69,7 +69,7 @@ class DNGO:
                                              n_features)
             mean, var = self._predict(params, self._trials_indices, deep_surrogate_model)
             acq_values = self._calc_acq_value(mean, var, self.results)
-            next_sample_index = np.argmax(acq_values)
+            next_sample_index = self._trials_indices[np.argmax(acq_values)]
             self._searched_trial_indices.append(next_sample_index)
             self._trials_indices.remove(next_sample_index)
             self.results[next_sample_index] = objective(self.trial_generator[next_sample_index])
@@ -99,7 +99,7 @@ class DNGO:
         predicted_bases = self._predict_deep_surrogate_model(remained_trial_indicees,
                                                              deep_surrogate_model)
         mean = np.matmul(predicted_bases, self.mat)
-        var = np.diag(np.matmul(np.matmul(predicted_bases, self.k_inv), predicted_bases.t()) + 1 / beta)
+        var = np.diag(np.matmul(np.matmul(predicted_bases, self.k_inv), predicted_bases.transpose()) + 1 / beta)
         return mean, var
 
     def _calc_acq_value(self, mean, var, results):
