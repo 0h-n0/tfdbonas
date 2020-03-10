@@ -146,13 +146,11 @@ class SimpleNetwork:
         with tf.Session(config=self.tf_config) as sess:
             self.saver.restore(sess, self.model_path)
             for x in xeval:
-                print(x)
                 x = np.array([x.hidden1,
                               x.hidden2,
                               x.lr,
                               x.batchsize]).reshape(1, 4)
                 y = np.ones((1, 1), dtype=np.float32) # dummy input
-                print(y)
                 bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
             bases = np.concatenate(bases)
         return bases
