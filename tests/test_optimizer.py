@@ -1,4 +1,5 @@
 import unittest
+import importlib
 
 import pytest
 import numpy as np
@@ -72,5 +73,28 @@ class TestDNGO(unittest.TestCase):
         y_values = np.random.rand(10)
         optimizer._calc_marginal_log_likelihood(theta, phi, y_values, 10, 10)
 
-        #algo._random_search(TestDNGO.objective, n_random)
-        #algo._bayes_search(TestDNGO.objective, n_bayes, path)
+    def test__train_deep_surrogate_model(self):
+        optimizer = DNGO(self.trial_generator)
+        path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        theta = np.random.rand(2)
+        searched_trial_indices = [1, 2, 3]
+        deep_surrogate_model = self.load_class(path)()
+        results = {str(i): i for i in range(3)}
+        n_epochs = 1
+        trained_bases = optimizer._train_deep_surrogate_model(searched_trial_indices,
+                                                              results,
+                                                              deep_surrogate_model,
+                                                              n_epochs)
+
+    def load_class(self, path):
+        splited_path = path.split(':')
+        assert len(splited_path) == 2, f'invalid input {splited_path}'
+        module, class_name = splited_path
+        module = importlib.import_module(module)
+        return getattr(module, class_name)
+
+    def test__predict_deep_surrogate_model(self):
+        optimizer = DNGO(self.trial_generator)
+        n_random = 10
+        n_bayes = 10
+        path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'

@@ -113,14 +113,13 @@ class SimpleNetwork:
             mse_loss = tf.reduce_mean(tf.square(self.y_plh_train - out))
             self.train_loss = tf.train.AdamOptimizer(learning_rate=0.001).minimize(mse_loss)
 
-    def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float]):
+    def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float], n_trainin_epochs: int = 100):
         #with tf.Graph().as_default():
         if True:
-            num_epoch = 1
             bases = []
             with self.sess as sess:
                 sess.run(tf.global_variables_initializer())
-                for _ in range(num_epoch):
+                for _ in range(n_trainin_epochs):
                     for x, y in zip(xtrain, ytrain):
                         x = np.array([x.hidden1,
                                       x.hidden2,
@@ -138,10 +137,10 @@ class SimpleNetwork:
                 bases = np.concatenate(bases)
         return bases
 
-    def eval(self, xeval=typing.List[Trial], yeval=typing.List[float]):
+    def predict(self, xeval=typing.List[Trial]):
         bases = []
         with self.sess as sess:
-            for x, y in zip(xeval, yeval):
+            for x in zip(xeval):
                 x = np.array([x.hidden1,
                               x.hidden2,
                               x.lr,

@@ -3,12 +3,12 @@ import typing
 import random
 from enum import Flag, auto
 
-from .trial import Trial, TrialGenerator
-from .utils import State, load_class
-
 import numpy as np
 import scipy.optimize
 import scipy.stats
+
+from .trial import Trial, TrialGenerator
+from .utils import State, load_class
 
 
 class OptimizerType(Flag):
@@ -64,7 +64,7 @@ class DNGO:
                                              self.results,
                                              n_samples,
                                              n_features)
-            mean, var = self._predict(params, self._trials_indices)
+            mean, var = self._predict(params, self._trials_indices, deep_surrogate_model)
             acq_values = self._calc_acq_value(mean, var)
             next_sample_index = np.argmax(acq_values)
             self._searched_trial_indices.append(next_sample_index)
@@ -75,15 +75,28 @@ class DNGO:
     def _train_deep_surrogate_model(self,
                                     searched_trial_indices: typing.List[int],
                                     results: typing.Dict[int, float],
-                                    deep_surrogate_model):
+                                    deep_surrogate_model,
+                                    n_training_epochs: int = 100):
+        assert isinstance(n_training_epochs, int), f'invalid input type: type(n_training_epochs) {type(n_training_epochs)}'
         assert len(searched_trial_indices) == len(results), ('invalid inputs, searched_trial_indices[{searched_trial_indices}] '
                                                              'and results[{results}] must be the same length.')
         searched_trials = [self.trial_generator[i] for i in searched_trial_indices]
-        trained_bases = deep_surrogate_model.train(searched_trials, results)
+        trained_bases = deep_surrogate_model.train(searched_trials, results, n_training_epochs)
         return trained_bases
 
-    def _predict(self, params, remained_trial_indicees):
-        mean, var = 0, 0
+    def _predict_deep_surrogate_model(self,
+                                      non_searched_trial_indices: typing.List[int],
+                                      deep_surrogate_model):
+        non_searched_trials = [self.trial_generator[i] for i in non_searched_trial_indices]
+        predicted_bases = deep_surrogate_model.predict(non_searched_trials)
+        return predicted_bases
+
+    def _predict(self, params, remained_trial_indicees, deep_surrogate_model):
+        _, beta = np.exp(params)
+        predicted_bases = self._predict_deep_surrogate_model(remained_trial_indicees,
+                                                             deep_surrogate_model)
+        mean = np.matmul(predicted_bases, self.mat)
+        var = np.diag(np.matmul(np.matmul(predicted_bases, self.k_inv), predicted_bases.t()) + 1 / beta)
         return mean, var
 
     def _calc_acq_value(self, mean, var):
