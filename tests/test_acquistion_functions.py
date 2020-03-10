@@ -9,7 +9,7 @@ import pytest
 def test__expected_improvement():
     mean = np.arange(0.1, 1, 0.1)
     sigma = np.arange(0.1, 1, 0.1)
-    min_val = np.array(0.1)
+    min_val = np.float64(0.1)
     eis = _expected_improvement(mean, sigma, min_val)
     assert eis.size == 9
 
@@ -17,14 +17,14 @@ def test__expected_improvement():
 def test__expected_improvement_with_invalid_shape():
     mean = np.arange(0, 1, 0.1).reshape(2, 5)
     sigma = np.arange(0, 1, 0.1)
-    min_val = np.array(0.1)
+    min_val = np.float64(0.1)
     eis = _expected_improvement(mean, sigma, min_val)
 
 @pytest.mark.xfail
 def test__expected_improvement_invalid_type():
     mean = [0.1*i for i in range(10)]
     sigma = np.arange(0, 1, 0.1)
-    min_val = np.array(0.1)
+    min_val = np.float64(0.1)
     eis = _expected_improvement(mean, sigma, min_val)
 
 @pytest.mark.xfail
@@ -35,6 +35,6 @@ def test__AcquisitonFunction():
     f = AcquisitonFunction(AcquisitonFunctionType.EI)
     mean = np.arange(0.1, 1, 0.1)
     sigma = np.arange(0.1, 1, 0.1)
-    min_val = np.array(0.1)
+    min_val = np.float64(0.1)
     eis = f(mean, sigma, min_val)
     assert eis.size == 9
