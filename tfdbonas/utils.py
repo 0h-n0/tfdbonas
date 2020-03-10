@@ -3,6 +3,8 @@ import importlib
 
 from .trial import Trial
 
+import numpy as np
+
 
 class Result:
     def __init__(self, n_remenbers: int = 10):
@@ -21,6 +23,16 @@ class State(Flag):
     Initialized = auto()
     NotInitialized = auto()
 
+def is_float(x) -> bool:
+    if isinstance(x, float):
+        return True
+    if isinstance(x, np.float16):
+        return True
+    if isinstance(x, np.float32):
+        return True
+    if isinstance(x, np.float64):
+        return True
+    return False
 
 def load_class(path: str):
     ''' load a class from path(: str).

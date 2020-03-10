@@ -3,11 +3,12 @@ from enum import Flag, auto
 import numpy as np
 import scipy.stats
 
+from .utils import is_float
 
 def _expected_improvement(mean: np.array, sigma: np.array, min_val: np.array):
     assert isinstance(mean, np.ndarray), f'instance type error, {type(mean)}'
     assert isinstance(sigma, np.ndarray), f'instance type error, {type(mean)}'
-    assert isinstance(min_val, np.ndarray), f'instance type error, {type(mean)}'
+    assert is_float(min_val), f'instance type error, {type(mean)}'
     assert len(mean.shape) == 1, f'Invalid shape error, {mean.shape}'
     assert len(sigma.shape) == 1, f'Invalid shape error, {sigma.shape}'
     assert mean.size == sigma.size, f'Invalid shape error, {sigma.size} != {sigma.size}'
