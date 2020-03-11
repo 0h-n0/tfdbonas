@@ -35,8 +35,8 @@ def objectve(trial: Trial):
 
 def test_main():
     searcher = Searcher()
-    searcher.register_trial('hidden_size', [64, 128, 256, 512])
-    searcher.register_trial('batchsize', [64, 128, 256, 512, 1024])
+    searcher.register_trial('hidden_size', [64, 128, 256, 512, 1024])
+    searcher.register_trial('batchsize', [32, 64, 128, 256, 512, 1024])
     searcher.register_trial('lr', [0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
     n_trials = 30
 
@@ -51,5 +51,6 @@ def test_main():
 
                              model_kwargs=model_kwargs)
     assert len(searcher.result) == n_trials
+    warnings.warn('results = {}'.format(searcher.result))
     warnings.warn('best_trial {}'.format(searcher.best_trial))
     warnings.warn('best_value {}'.format(searcher.best_value))
