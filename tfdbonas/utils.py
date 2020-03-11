@@ -10,7 +10,7 @@ class Result:
     def __init__(self, n_remenbers: int = 10):
         self.trials = []
         self.score = []
-        self.min_score: float = 0.0
+        self.max_score: float = 0.0
 
     def push(self, score: float, trial: Trial):
         pass

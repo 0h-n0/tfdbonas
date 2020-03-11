@@ -24,15 +24,22 @@ class Searcher:
 
         if OptimizerType.DNGO == self.search_algorithm:
             Optimizer = DNGO
+            print(kwargs.keys())
             if not 'deep_surrogate_model' in kwargs.keys():
-                raise ValueError("set 'deep_surrogate_model' in input kwargs'")
+                raise ValueError("set 'deep_surrogate_model(str)' in 'kwargs' as search options")
             if not 'n_random_trials' in kwargs.keys():
-                raise ValueError("set 'n_random_trials' in input kwargs'")
+                raise ValueError("set 'n_random_trials' in input 'kwargs' as search options")
+            if not 'model_kwargs' in kwargs.keys():
+                raise ValueError("set 'n_random_trials' in input 'kwargs' as search options")
+
         else:
             raise NotImplementedError("supported optimizer: DNGO")
         optimizer = Optimizer(self.trial_generator)
-        result = optimizer.run(objective, n_trials, **kwargs)
-        return result
+        self.result = optimizer.run(objective, n_trials, **kwargs)
+        max_value_idx = max(self.result, key=lambda k: self.result[k])
+        self.best_trial = self.trial_generator[max_value_idx]
+        self.best_value = self.result[max_value_idx]
+        return self
 
     def __len__(self):
         return len(self.trial_generator)

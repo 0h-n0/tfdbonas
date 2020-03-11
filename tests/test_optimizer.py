@@ -61,8 +61,9 @@ class TestDNGO(unittest.TestCase):
         n_random = 10
         n_bayes = 10
         path = 'tfdbonas.deep_surrogate_models:SimpleNetwork'
+        model_kwargs = dict(input_dim=4)
         algo._random_search(TestDNGO.objective, n_random)
-        algo._bayes_search(TestDNGO.objective, n_bayes, path)
+        algo._bayes_search(TestDNGO.objective, n_bayes, path, model_kwargs)
 
     def test__calc_marginal_log_likelihood(self):
         optimizer = DNGO(self.trial_generator)

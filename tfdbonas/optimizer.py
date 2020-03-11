@@ -30,9 +30,13 @@ class DNGO:
             n_trials: int, **kwargs):
         n_random_trials = kwargs['n_random_trials']
         deep_surrogate_model = kwargs['deep_surrogate_model']
+        model_kwargs = kwargs['model_kwargs']
         _ = self._random_search(objective, n_random_trials)
-        results = self._bayes_search(objective, n_trials - n_random_trials, deep_surrogate_model)
-        return self.results
+        results = self._bayes_search(objective,
+                                     n_trials - n_random_trials,
+                                     deep_surrogate_model,
+                                     model_kwargs)
+        return results
 
     def _random_search(self,
                        objective: typing.Callable[[Trial], float],
@@ -50,8 +54,10 @@ class DNGO:
     def _bayes_search(self,
                       objective: typing.Callable[[Trial], float],
                       n_trials: int,
-                      deep_surrogate_model_path: str) -> typing.List[int]:
-        deep_surrogate_model = load_class(deep_surrogate_model_path)(model_path=self._deep_surrogate_model_restore_path)
+                      deep_surrogate_model_path: str,
+                      model_kwargs: typing.Dict) -> typing.List[int]:
+        deep_surrogate_model_class = load_class(deep_surrogate_model_path)
+        deep_surrogate_model = deep_surrogate_model_class(**model_kwargs)
         assert self._state == State.Initialized, ('not initialied: please call '
                                                   'self.random_search() before calling bayes_search.')
         assert len(self._searched_trial_indices) != 0, 'Before searching, you have to run random search.'

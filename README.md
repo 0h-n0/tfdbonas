@@ -4,7 +4,7 @@
 ## Installation
 
 ```shell
-$ # Not yet.
+$ # Not yet provided.
 $ pip install tfdbonas
 ```
 

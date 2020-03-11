@@ -1,3 +1,4 @@
+import uuid
 import typing
 
 import numpy as np
@@ -87,8 +88,13 @@ def get_kgcn_gcn_class():
 
 
 class SimpleNetwork:
-    def __init__(self, output_dim: int = 1, hidden_dim: int = 32, activation='tanh',
-                 model_path='/tmp/simplenetwork.ckpt'):
+    def __init__(self,
+                 input_dim: int = 4,
+                 output_dim: int = 1,
+                 hidden_dim: int = 32,
+                 activation='tanh',
+                 n_train_epochs: int = 100,
+                 save_path=f'/tmp/simplenetwork-{uuid.uuid1()}.ckpt'):
         self.first_layer = tf.keras.models.Sequential([
             L.Dense(32, activation),
             L.Dense(64, activation),
@@ -98,58 +104,51 @@ class SimpleNetwork:
                                         gpu_options=tf.GPUOptions(
                                             allow_growth=True,
                                         ))
-        self._build_graph()
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.n_train_epochs = n_train_epochs
+        self._build_graph(input_dim, output_dim)
         self.saver = tf.train.Saver()
-        self.model_path = model_path
-        self._build_graph()
+        self.save_path = save_path
 
     def __call__(self, x):
         self.bases = self.first_layer(x)
         return self.last_layer(self.bases)
 
-    def _build_graph(self):
+    def _build_graph(self, xdim: int, ydim: int):
         if True:
-            self.y_plh_train = tf.placeholder(tf.float32, shape=[None, 1], name='ytrain')
-            self.x_plh_train = tf.placeholder(tf.float32, shape=[None, 4], name='xtrain')
+            self.y_plh_train = tf.placeholder(tf.float32, shape=[None, ydim], name='ytrain')
+            self.x_plh_train = tf.placeholder(tf.float32, shape=[None, xdim], name='xtrain')
             out = self(self.x_plh_train)
             mse_loss = tf.reduce_mean(tf.square(self.y_plh_train - out))
             self.train_loss = tf.train.AdamOptimizer(learning_rate=0.001).minimize(mse_loss)
-    def _build_predict(self):
-        pass
 
-    def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float], n_trainin_epochs: int = 100):
+    def train(self, xtrain=typing.List[Trial], ytrain=typing.List[float], n_epochs: int=None):
+        if not n_epochs is None:
+            n_epochs = self.n_train_epochs
         if True:
             bases = []
             with tf.Session(config=self.tf_config) as sess:
                 sess.run(tf.global_variables_initializer())
-                for _ in range(n_trainin_epochs):
+                for _ in range(n_epochs):
                     for x, y in zip(xtrain, ytrain):
-                        x = np.array([x.hidden1,
-                                      x.hidden2,
-                                      x.lr,
-                                      x.batchsize]).reshape(1, 4)
+                        x = x.to_numpy().reshape(1, self.input_dim)
                         y = np.array(y, dtype=np.float32).reshape(1, 1)
                         sess.run(self.train_loss, feed_dict={self.x_plh_train: x, self.y_plh_train: y})
                 for x, y in zip(xtrain, ytrain):
-                    x = np.array([x.hidden1,
-                                  x.hidden2,
-                                  x.lr,
-                                  x.batchsize]).reshape(1, 4)
+                    x = x.to_numpy().reshape(1, self.input_dim)
                     y = np.array(y, dtype=np.float32).reshape(1, 1)
                     bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
                 bases = np.concatenate(bases)
-                self.saver.save(sess, self.model_path)
+                self.saver.save(sess, self.save_path)
         return bases
 
     def predict(self, xeval=typing.List[Trial]):
         bases = []
         with tf.Session(config=self.tf_config) as sess:
-            self.saver.restore(sess, self.model_path)
+            self.saver.restore(sess, self.save_path)
             for x in xeval:
-                x = np.array([x.hidden1,
-                              x.hidden2,
-                              x.lr,
-                              x.batchsize]).reshape(1, 4)
+                x = x.to_numpy().reshape(1, self.input_dim)
                 y = np.ones((1, 1), dtype=np.float32) # dummy input
                 bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
             bases = np.concatenate(bases)

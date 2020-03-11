@@ -1,6 +1,8 @@
 import typing
 from enum import Flag, auto
 
+import numpy as np
+
 
 class Params(Flag):
     NN = auto()
@@ -24,6 +26,10 @@ class Trial:
             return self._elements == other
         else:
             return NotImplemented
+    def __len__(self):
+        ''' return number of elements
+        '''
+        return len(self._elements)
 
     def __str__(self):
         o = "{"
@@ -34,6 +40,14 @@ class Trial:
         o = o[:-2] # remove the last comma.
         o += "}"
         return o
+
+    def to_dict(self):
+        return self._elements
+
+    def to_numpy(self):
+        '''if elements are one values, return
+        '''
+        return np.array([v for k, v in self._elements.items()])
 
 
 class TrialGenerator:
