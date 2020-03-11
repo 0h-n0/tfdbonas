@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import warnings
+
 import tensorflow as tf
 import tensorflow.keras as keras
 from tensorflow.examples.tutorials.mnist import input_data
@@ -33,10 +35,22 @@ def objectve(trial: Trial):
 
 if __name__ == '__main__':
     searcher = Searcher()
-    searcher.register_trial('hidden_size', [64, 128, 256, 512])
-    searcher.register_trial('batchsize', [64, 128, 256, 512, 1024])
+    searcher.register_trial('hidden_size', [64, 128, 256, 512, 1024])
+    searcher.register_trial('batchsize', [32, 64, 128, 256, 512, 1024])
     searcher.register_trial('lr', [0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
-    result = searcher.search(objectve, n_trials=30, deep_surrogate_model='tfdbonas.deep_surrogate_models:SimpleNetwork', n_random_trials=10)
-    print(result)
-    print('best_trial', searcher.best_trial)
-    print('best_value', searcher.best_value)
+    n_trials = 30
+
+    model_kwargs = dict(
+        input_dim=3,
+        n_train_epochs=200,
+    )
+    _ = searcher.search(objectve,
+                        n_trials=n_trials,
+                        deep_surrogate_model='tfdbonas.deep_surrogate_models:SimpleNetwork',
+                        n_random_trials=10,
+
+                             model_kwargs=model_kwargs)
+    assert len(searcher.result) == n_trials
+    warnings.warn('results = {}'.format(searcher.result))
+    warnings.warn('best_trial {}'.format(searcher.best_trial))
+    warnings.warn('best_value {}'.format(searcher.best_value))
