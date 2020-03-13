@@ -91,13 +91,13 @@ class SimpleNetwork:
     def __init__(self,
                  input_dim: int = 4,
                  output_dim: int = 1,
-                 hidden_dim: int = 32,
+                 hidden_dim: int = 64,
                  activation='tanh',
                  n_train_epochs: int = 100,
                  save_path=f'/tmp/simplenetwork-{uuid.uuid1()}.ckpt'):
         self.first_layer = tf.keras.models.Sequential([
+            L.Dense(16, activation),
             L.Dense(32, activation),
-            L.Dense(64, activation),
             L.Dense(hidden_dim, activation)])
         self.last_layer = L.Dense(output_dim)
         self.tf_config = tf.ConfigProto(log_device_placement=False,
