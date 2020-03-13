@@ -2,11 +2,10 @@ import pytest
 
 import tensorflow as tf
 
-from tfdbonas.deep_surrogate_models import (get_kgcn_gcn_class,
-                                            SimpleNetwork)
+from tfdbonas.deep_surrogate_models import SimpleNetwork
 from tfdbonas.trial import Trial
 
-
+@pytest.mark.skipif(True, reason="remove kgcn")
 def test_get_kgcn_gcn_class():
     import tensorflow as tf
     gcn_class = get_kgcn_gcn_class()

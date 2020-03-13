@@ -35,7 +35,7 @@ def objectve(trial: Trial):
 
 if __name__ == '__main__':
     searcher = Searcher()
-    searcher.register_trial('hidden_size', [64, 128, 256, 512, 1024])
+    searcher.register_trial('hidden_size', [16, 32, 64, 128, 256, 512, 1024])
     searcher.register_trial('batchsize', [32, 64, 128, 256, 512, 1024])
     searcher.register_trial('lr', [0.05, 0.1, 0.2, 0.3, 0.4, 0.5])
     n_trials = 30
