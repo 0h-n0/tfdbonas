@@ -1,5 +1,4 @@
-tnng
-tfcg
+tnng>=0.3.0
 ##stellargraph
 git+https://github.com/clinfo/kGCN.git
 scipy

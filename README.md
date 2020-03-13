@@ -10,7 +10,7 @@ $ pip install tfdbonas
 
 ## Requirements
 
-* tnng
+* tnng >= 0.3.0
 * tfcg
 * stellargraph
 
