@@ -182,12 +182,3 @@ class SimpleNetwork(BaseSurrogateModel):
                 bases.append(sess.run(self.bases, feed_dict={self.x_plh_train: x, self.y_plh_train: y}))
             bases = np.concatenate(bases)
         return bases
-
-
-if __name__ == "__main__":
-    gcn_class = get_kgcn_gcn_class()
-    g = gcn_class(32)
-    features = tf.placeholder(tf.float32, shape=(None, 25, 10))
-    adj = tf.placeholder(tf.float32, shape=(1, 25, 25))
-    o = g([features, [0,], adj])
-    print(o)
