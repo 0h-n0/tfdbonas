@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import warnings
 
-
 import pytest
 import tensorflow as tf
 import tensorflow.keras as keras
@@ -34,7 +33,7 @@ def objectve(trial: Trial):
     accuracy = out[1]
     return accuracy
 
-
+@pytest.mark.heavy
 def test_simple_network():
     searcher = Searcher()
     searcher.register_trial('hidden_size', [64, 128, 256, 512, 1024])
@@ -202,7 +201,7 @@ def test_cnn_model_with_few_trials():
     warnings.warn('CNN: best_trial {}'.format(searcher.best_trial))
     warnings.warn('CNN: best_value {}'.format(searcher.best_value))
 
-
+@pytest.mark.heavy
 def test_cnn_model_with_few_trials():
     searcher = Searcher()
     searcher.register_trial('cnn_h1', [16, 64])
