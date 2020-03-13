@@ -110,7 +110,7 @@ class DNGO:
 
     def _calc_acq_value(self, mean, var, results):
         # TODO: current version is just for EI.
-        min_val = np.float64(np.min(list(results.values())))
+        min_val = np.float32(np.min(list(results.values())))
         return self.acq_func(mean, var, min_val)
 
     def _update_mll_params(self, bases, searched_trial_indices,
@@ -144,8 +144,8 @@ class DNGO:
         mat = beta * np.matmul(k_inv, phi_t)
         mat = np.matmul(mat, y_values)
 
-        self.mat = mat
-        self.k_inv = k_inv
+        self.mat = np.float32(mat)
+        self.k_inv = np.float32(k_inv)
         mll = n_features / 2. * np.log(alpha)
         mll += n_samples / 2. * np.log(beta)
         mll -= n_samples / 2. * np.log(2 * math.pi)
