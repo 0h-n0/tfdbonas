@@ -6,18 +6,16 @@ import numpy as np
 
 
 def objectve(trial: Trial):
-    # x* = 0
-    # f(x*) = 0
-    o = 20 + np.e
-    o += -20 * np.exp(-0.2*(trial.x ** 2 / 2 + trial.y ** 2 / 2))
-    o += -np.exp(np.cos(2 * math.pi * trial.x**2) / 2 + np.cos(2 * math.pi * trial.y**2) / 2)
+    # (x*, y*) = [1, 1]
+    # f(x*, y*) = 0
+    o = 100*(trial.y - trial.x**2)**2 + (trial.x - 1)**2
     return -o
 
 
 if __name__ == '__main__':
     searcher = Searcher()
-    searcher.register_trial('x', np.arange(-30, 30, 0.5))
-    searcher.register_trial('y', np.arange(-30, 30, 0.5))
+    searcher.register_trial('x', np.arange(-2.048, 2.048, 0.02))
+    searcher.register_trial('y', np.arange(-2.048, 2.048, 0.02))
     model_kwargs = dict(
         input_dim=2, # coresponding to the number of register_trial
         n_train_epochs=200,
