@@ -48,8 +48,7 @@ if __name__ == '__main__':
                         n_trials=n_trials,
                         deep_surrogate_model='tfdbonas.deep_surrogate_models:SimpleNetwork',
                         n_random_trials=10,
-
-                             model_kwargs=model_kwargs)
+                        model_kwargs=model_kwargs)
     assert len(searcher.result) == n_trials
     warnings.warn('results = {}'.format(searcher.result))
     warnings.warn('best_trial {}'.format(searcher.best_trial))

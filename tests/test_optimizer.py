@@ -86,8 +86,8 @@ class TestDNGO(unittest.TestCase):
         deep_surrogate_model = self.load_class(path)()
         results = {str(i): i for i in range(3)}
         remained_trial_indices = [4, 5, 6]
-        optimizer.k_inv = np.random.rand(32, 32)
-        optimizer.mat = np.random.rand(32, 32)
+        optimizer.k_inv = np.random.rand(64, 64)
+        optimizer.mat = np.random.rand(64, 64)
         n_epochs = 1
         trained_bases = optimizer._train_deep_surrogate_model(searched_trial_indices,
                                                               results,

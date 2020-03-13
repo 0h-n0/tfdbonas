@@ -1,5 +1,5 @@
 ![Github CI/CD](https://github.com/0h-n0/tfdbonas/workflows/Github%20CI/CD/badge.svg)
-# Tensorflow Deep Bayes Optimization for Neural Network Architecture Search (tfDBONAS)
+# Tensorflow(1.x) Deep Bayes Optimization for Neural Network Architecture Search (tfDBONAS)
 
 ## Installation
 
