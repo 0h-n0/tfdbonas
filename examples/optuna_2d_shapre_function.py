@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 # ref: https://github.com/optuna/optuna/blob/master/examples/quadratic_simple.py
 import optuna
+import numpy as np
 
-
-# Define a simple 2-dimensional objective function whose minimum value is -1 when (x, y) = (0, -1).
 def objective(trial):
-    x = trial.suggest_uniform('x', -10, 10)
-    y = trial.suggest_uniform('y', -10, 10)
+    x = trial.suggest_categorical('x', np.arange(-10, 10, 0.1))
+    y = trial.suggest_categorical('y', np.arange(-10, 10, 0.1))
     return x**2 + y**2
 
 
