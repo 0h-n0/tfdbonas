@@ -24,7 +24,6 @@ class Searcher:
 
         if OptimizerType.DNGO == self.search_algorithm:
             Optimizer = DNGO
-            print(kwargs.keys())
             if not 'deep_surrogate_model' in kwargs.keys():
                 raise ValueError("set 'deep_surrogate_model(str)' in 'kwargs' as search options")
             if not 'n_random_trials' in kwargs.keys():
