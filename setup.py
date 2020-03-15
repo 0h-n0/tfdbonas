@@ -19,8 +19,8 @@ test_require = [
 ]
 
 setuptools.setup(
-    name="tfgg",
-    version='0.1.4',
+    name="tfdbonas",
+    version='0.1.0',
     python_requires='>3.5',
     author="Koji Ono",
     author_email="kbu94982@gmail.com",
@@ -38,5 +38,6 @@ setuptools.setup(
             'sphinx_rtd_theme']},
     classifiers=[
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )
