@@ -3,4 +3,4 @@ tnng>=0.3.0
 git+https://github.com/clinfo/kGCN.git
 scipy
 numpy
-tensorflow==1.15.2
+tensorflow==2.3.1
